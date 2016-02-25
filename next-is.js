@@ -1,5 +1,5 @@
 /* 
-is.js 2.0 ~ Copyright (c) 2012-2016 Cedrik Boudreau, Cezary Daniel Nowak
+next-is.js 2.0 ~ Copyright (c) 2012-2016 Cedrik Boudreau, Cezary Daniel Nowak
 https://github.com/Cedriking/is.js
 is.js may be freely distributed under the MIT Licence.
  */
@@ -24,11 +24,11 @@ is.js may be freely distributed under the MIT Licence.
     });
   };
   var each = function(elements, callback) {
-    var element, key, _i, _len;
+    var element, key, i, len;
     if (typeof elements === 'array') {
-      for (_i = 0, _len = elements.length; _i < _len; _i++) {
-        element = elements[_i];
-        if (!callback.call(element, _i, element)) {
+      for (i = 0, len = elements.length; i < len; i++) {
+        element = elements[i];
+        if (!callback.call(element, i, element)) {
           return elements;
         }
       }
@@ -311,6 +311,6 @@ is.js may be freely distributed under the MIT Licence.
   if (typeof module === 'object' && module.exports) {
     module.exports = isValid;
   } else {
-    root.isValid = isValid;
+    root.is = isValid;
   }
 })();
