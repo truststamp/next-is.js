@@ -3,6 +3,8 @@ is.js is a micro javascript library that helps you with conditions.
 This fork of is.js is not poluting global scope.
 It's able to work on both: NodeJS and Browser.
 
+This library may be simple replacement for any validation library, modernizr etc.
+
 ## Installation
 `npm install --save next-is`
 
@@ -11,8 +13,11 @@ It's able to work on both: NodeJS and Browser.
 is.js is available under window.is
 
 
-#### require/amd (webpack)
+#### node/require/amd (webpack): `npm install --save next-is`
 `const is = require('next-is');`
+
+
+After that you have already finished with the installation. Inside your main script you can already start using next-is.js!
 
 
 ### Examples:
@@ -46,24 +51,8 @@ if(is.desktop()){
 }
 ```
 
-###How to use:
-First of all you need to add is.js to your website, before your main javascript:
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>My homepage</title>
-</head>
-<body> <script src="next-is.js"></script> <!-- insert next-is.js -->
-	<script src="main.js"></script>   <!-- your main javascript -->
-</body>
-</html>
-```
-After that you have already finished with the installation. Inside your main script you can already start using next-is.js!
-```
-
 ## API reference
+
 ```
 is = {
 	chrome function()
