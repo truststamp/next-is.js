@@ -243,7 +243,7 @@ QUnit.test("string.isZip", function( assert ) {
 		es = '29611',
 		gb = 'EC1A 1BB',
 		hu = '9012',
-		is = '371',
+		_is = '371',
 		it = '25049',
 		jp = '541-5472',
 		nl = '9446',
@@ -262,7 +262,7 @@ QUnit.test("string.isZip", function( assert ) {
 	equal( is.string.isZip( es, 'es' ), true, "'29611' is a ES Zip Code" );
 	equal( is.string.isZip( gb, 'gb' ), true, "'EC1A 1BB' is a GB Zip Code" );
 	equal( is.string.isZip( hu, 'hu' ), true, "'9012' is a HU Zip Code" );
-	equal( is.string.isZip( is, 'is' ), true, "'371' is a IS Zip Code" );
+	equal( is.string.isZip( _is, 'is' ), true, "'371' is a IS Zip Code" );
 	equal( is.string.isZip( it, 'it' ), true, "'25049' is a IT Zip Code" );
 	equal( is.string.isZip( jp, 'jp' ), true, "'541-5472' is a JP Zip Code" );
 	equal( is.string.isZip( nl, 'nl' ), true, "'8031' is a NL Zip Code" );
