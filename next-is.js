@@ -41,6 +41,7 @@ is.js may be freely distributed under the MIT Licence.
     }
     return elements;
   };
+
   var isValid = {
     number: {
       isInteger: function(input) {
@@ -122,8 +123,8 @@ is.js may be freely distributed under the MIT Licence.
         })();
         return regex.test(input);
       },
-      isCreditCard: function(input, type) {
-        return isValid.string.isCC(input, type || 'any');
+      isCreditCard: function() {
+        return isValid.string.isCC.apply(null, arguments);
       },
       isEmail: function(input) {
         return /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(input);
@@ -208,16 +209,38 @@ is.js may be freely distributed under the MIT Licence.
       },
       isBlank: function(input) {
         return input.trim().length === 0;
+      },
+      minLen: function(input, len, trim) {
+        if (trim) {
+          input = input.trim();
+        }
+        return input.length >= len;
+      },
+      maxLen: function(input, len, trim) {
+        if (trim) {
+          input = input.trim();
+        }
+        return input.length <= len;
       }
     },
     isNaN: function(input) {
       return !isValid.isNumber(input);
     },
     isEmpty: function(input) {
-      if (input === null || typeof input !== 'object') {
-        return !(input && input.length > 0);
+      if (!input) {
+        // 0, '', NaN, false, null, undefined
+        return true;
       }
-      return object.keys(input).length === 0;
+      if (input.hasOwnProperty('length') && !is.isFunction(input)) {
+        // Array, string, arguments, NodeList
+        return !input.length;
+      }
+      for (var key in input) {
+        if (proto.hasOwnProperty.call(input, key)) {
+          return false;
+        }
+      }
+      return true;
     },
     isSameType: function(input, obj) {
       return proto.toString.call(input) === proto.toString.call(obj);
@@ -307,7 +330,19 @@ is.js may be freely distributed under the MIT Licence.
     };
   });
 
-  
+
+  var _obj = isValid.number
+  isValid.number = isValid.isNumber;
+  extend(isValid.number, _obj);
+
+  _obj = isValid.string;
+  isValid.string = isValid.isString;
+  extend(isValid.string, _obj);
+
+  _obj = isValid.date;
+  isValid.date = isValid.isDate;
+  extend(isValid.date, _obj);
+
   if (typeof module === 'object' && module.exports) {
     module.exports = isValid;
   } else {
