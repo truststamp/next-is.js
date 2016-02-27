@@ -42,19 +42,19 @@ is.js may be freely distributed under the MIT Licence.
     return elements;
   };
 
-  var isValid = {
+  var is = {
     number: {
       isInteger: function(input) {
         return input % 1 === 0;
       },
       isFloat: function(input) {
-        return !isValid.number.isInteger(input);
+        return !is.number.isInteger(input);
       },
       isOdd: function(input) {
-        return !isValid.number.isEven(input);
+        return !is.number.isEven(input);
       },
       isEven: function(input) {
-        return isValid.number.isMultipleOf(input, 2);
+        return is.number.isMultipleOf(input, 2);
       },
       isMultipleOf: function(input, multiple) {
         return input % multiple === 0;
@@ -83,13 +83,13 @@ is.js may be freely distributed under the MIT Licence.
         if (d == null) {
           d = input;
         }
-        return isValid.date.isPast(input, d);
+        return is.date.isPast(input, d);
       },
       isAfter: function(input, d) {
         if (d == null) {
           d = input;
         }
-        return isValid.date.isFuture(input, d);
+        return is.date.isFuture(input, d);
       },
       isLeapYear: function(input) {
         var year;
@@ -97,7 +97,7 @@ is.js may be freely distributed under the MIT Licence.
         return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
       },
       isValid: function(input) {
-        return !isValid.isNaN(input.getTime());
+        return !is.isNaN(input.getTime());
       }
     },
     string: {
@@ -124,7 +124,7 @@ is.js may be freely distributed under the MIT Licence.
         return regex.test(input);
       },
       isCreditCard: function() {
-        return isValid.string.isCC.apply(null, arguments);
+        return is.string.isCC.apply(null, arguments);
       },
       isEmail: function(input) {
         return /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(input);
@@ -133,7 +133,7 @@ is.js may be freely distributed under the MIT Licence.
         return /-?\d{1,3}\.\d+/.test(input);
       },
       isLatLong: function(input) {
-        return isValid.string.isLatLng(input);
+        return is.string.isLatLng(input);
       },
       isPhone: function(input, country) {
         var regex;
@@ -224,7 +224,7 @@ is.js may be freely distributed under the MIT Licence.
       }
     },
     isNaN: function(input) {
-      return !isValid.isNumber(input);
+      return !is.isNumber(input);
     },
     isEmpty: function(input) {
       if (!input) {
@@ -240,6 +240,7 @@ is.js may be freely distributed under the MIT Licence.
           return false;
         }
       }
+      // remember: isEmpty return true for function!
       return true;
     },
     isSameType: function(input, obj) {
@@ -297,7 +298,7 @@ is.js may be freely distributed under the MIT Licence.
       return /ipad|android(?!.*mobile)/i.test(ua);
     },
     desktop: function() {
-      return !isValid.mobile() && !isValid.tablet();
+      return !is.mobile() && !is.tablet();
     },
     kindle: function() {
       return /kindle|silk/i.test(ua);
@@ -309,7 +310,7 @@ is.js may be freely distributed under the MIT Licence.
       return navigator.onLine;
     },
     offline: function() {
-      return !isValid.online();
+      return !is.online();
     },
     windows: function() {
       return /win/i.test(av);
@@ -325,27 +326,47 @@ is.js may be freely distributed under the MIT Licence.
     }
   };
   each(['Object', 'Array', 'Boolean', 'Date', 'Function', 'Number', 'String', 'RegExp'], function(i, type) {
-    return isValid["is" + type] = function(input) {
+    return is["is" + type] = function(input) {
       return isClass(input, type);
     };
   });
 
+  // shortcut: is.number()
+  var _obj = is.number
+  is.number = is.isNumber;
+  extend(is.number, _obj);
 
-  var _obj = isValid.number
-  isValid.number = isValid.isNumber;
-  extend(isValid.number, _obj);
+  // shortcut: is.string()
+  _obj = is.string;
+  is.string = is.isString;
+  extend(is.string, _obj);
 
-  _obj = isValid.string;
-  isValid.string = isValid.isString;
-  extend(isValid.string, _obj);
+  // shortcut: is.date()
+  _obj = is.date;
+  is.date = is.isDate;
+  extend(is.date, _obj);
 
-  _obj = isValid.date;
-  isValid.date = isValid.isDate;
-  extend(isValid.date, _obj);
+  // implement is.not.*
+  var makeNot = function(inputObj) {
+    return Object.keys(inputObj).reduce(function(result, key) {
+      if (inputObj[key] instanceof Function) {
+        result[key] = function() {
+          return !inputObj[key].apply(null, arguments);
+        }
+      }
+      if (!is.isEmpty(inputObj[key])) {
+        // is.not.string.isCC
+        extend(result[key], makeNot(inputObj[key]));
+      }
+      return result;
+    }, {});
+  };
+
+  is.not = makeNot(is);
 
   if (typeof module === 'object' && module.exports) {
-    module.exports = isValid;
+    module.exports = is;
   } else {
-    root.is = isValid;
+    root.is = is;
   }
 })();

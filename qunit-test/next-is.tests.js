@@ -19,6 +19,8 @@ QUnit.test("isArray", function( assert ) {
 	equal( is.isArray(bool), false, "Boolean is not Array" );
 	equal( is.isArray(integer), false, "Number is not Array" );
 	equal( is.isArray(reg), false, "Regexp is not Array" );
+
+	equal( is.not.isArray(reg), true, "Regexp is not Array" );
 });
 
 QUnit.test("isBoolean", function( assert ) {
@@ -179,6 +181,8 @@ QUnit.test("isType", function( assert ) {
 QUnit.test("string.isBlank", function( assert ) {
 	equal( is.string.isBlank(strEmpty), true, "empty string is Blank" );
 	equal( is.string.isBlank(str), false, "String is not Blank" );
+
+	equal( is.not.string.isBlank(str), true, "String is not Blank" );
 });
 
 QUnit.test("string.isCC and string.isCreditCard", function( assert ) {
@@ -270,6 +274,20 @@ QUnit.test("string.isZip", function( assert ) {
 	equal( is.string.isZip( se, 'se' ), true, "'587 42' is a SE Zip Code" );
 	equal( is.string.isZip( us, 'us' ), true, "'60603' is a US Zip Code" );
 });
+
+QUnit.test("string.minLen and string.maxLen", function( assert ) {
+	var str1 = 'abcd';
+	var str2 = '  abcd  ';
+	equal( is.string.minLen(str1, 4), true, "4-character string is minLen of 4" );
+	equal( is.string.minLen(str2, 4, true), true, "trimmed 4-character string is minLen of 4" );
+	equal( is.string.minLen(str1, 5), false, "4-character string is not minLen of 5" );
+	
+	equal( is.string.maxLen(str1, 4), true, "4-character string is maxLen of 4" );
+	equal( is.string.maxLen(str2, 4, true), true, "trimmed 4-character string is maxLen of 4" );
+	equal( is.string.maxLen(str2, 3, true), false, "4-character string is not maxLen of 3" );
+
+});
+
 
 
 /*** Date Functions ***/
