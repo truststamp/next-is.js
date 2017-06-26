@@ -131,6 +131,12 @@ is.js may be freely distributed under the MIT Licence.
       isSameOrBefore: function(dateString, comparedDateString) {
         if (!is.date.isValidPattern(dateString) || !is.date.isValidPattern(comparedDateString)) return false;
         return new Date(dateString).getTime() <= new Date(comparedDateString).getTime();
+      },
+      isMinimumAge: function(dateString, minimumAge) {
+        if (!is.date.isValidPattern(dateString)) return false;
+        var parsedDate = new Date(dateString);
+        var tempDate = new Date(parsedDate.getFullYear() + minimumAge, parsedDate.getMonth(), parsedDate.getDate());
+        return tempDate <= new Date();
       }
     },
     string: {
@@ -175,6 +181,9 @@ is.js may be freely distributed under the MIT Licence.
       },
       isLatLong: function(input) {
         return is.string.isLatLng(input);
+      },
+      isLink: function(input) {
+        return /^(ht|f)tp(s?)\:\/\/(([a-zA-Z0-9\-\._]+(\.[a-zA-Z0-9\-\._]+)+)|localhost)(\/?)([a-zA-Z0-9\-\.\?\,\'\/\\\+&amp;%\$#_]*)?([\d\w\.\/\%\+\-\=\&amp;\?\:\\\&quot;\'\,\|\~\;]*)$/.test(input);
       },
       isPhone: function(input, country) {
         var regex;
@@ -410,6 +419,9 @@ is.js may be freely distributed under the MIT Licence.
     },
     iOS10: function() {
       return is.iOS() && iOSversion()[0] === 10;
+    },
+    cordova: function() {
+      return root && typeof root.cordova !== 'undefined';
     },
     browser: function() {
       return typeof window !== 'undefined' || typeof process === 'undefined';
