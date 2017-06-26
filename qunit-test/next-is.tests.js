@@ -1,9 +1,9 @@
-var strEmpty = '', 
-	str = 'This is a string', 
+var strEmpty = '',
+	str = 'This is a string',
 	obj = {},
-	creditCard = "5196255216134695", 
-	d = new Date(), 
-	arr = [], 
+	creditCard = "5196255216134695",
+	d = new Date(),
+	arr = [],
 	bool = true,
 	fl = 22.5,
 	integer = 23,
@@ -207,18 +207,20 @@ QUnit.test("string.isLatLng and string.isLatLong", function( assert ) {
 
 QUnit.test("string.isPhone", function( assert ) {
 	var ar1 = '1234-5678',
-		au1 = '0491 570 156', 
-		au2 = '+61 491 570 156', 
-		ca1 = '613-555-0195', 
-		ca2 = '1-613-555-0195', 
-		fr1 = '03 7291 6437', 
-		fr2 = '04.48.95.09.94', 
-		is1 = '479 5406', 
-		is2 = '438 7049', 
-		uk1 = '01632 960483', 
-		uk2 = '+44 1632 960483', 
-		us1 = '202-555-0173', 
-		us2 = '1-202-555-0173';
+		au1 = '0491 570 156',
+		au2 = '+61 491 570 156',
+		ca1 = '613-555-0195',
+		ca2 = '1-613-555-0195',
+		fr1 = '03 7291 6437',
+		fr2 = '04.48.95.09.94',
+		is1 = '479 5406',
+		is2 = '438 7049',
+		uk1 = '01632 960483',
+		uk2 = '+44 1632 960483',
+		us1 = '202-555-0173',
+    us2 = '1-202-555-0173',
+    pl1 = '+48533628000',
+		pl2 = '0048533628000';
 
 	equal( is.string.isPhone( ar1, 'ar' ), true, "'123-4564' is an AR phone number" );
 	equal( is.string.isPhone( au1, 'au' ), true, "'0491 570 156' is an AU phone number" );
@@ -232,7 +234,12 @@ QUnit.test("string.isPhone", function( assert ) {
 	equal( is.string.isPhone( uk1, 'uk' ), true, "'01632 960483' is a UK phone number" );
 	equal( is.string.isPhone( uk2, 'uk' ), true, "'+44 1632 960483' is a UK phone number" );
 	equal( is.string.isPhone( us1, 'us' ), true, "'202-555-0173' is a US phone number" );
-	equal( is.string.isPhone( us2, 'us' ), true, "'1-202-555-0173' is a US phone number" );
+  equal( is.string.isPhone( us2, 'us' ), true, "'1-202-555-0173' is a US phone number" );
+  equal( is.string.isPhone( us2, ['ca', 'fr', 'us'] ), true, "'1-202-555-0173' is one of: US, FR, CA phone numbers" );
+  equal( is.string.isPhone( pl1, 'pl' ), true, "'+48533628000' is a PL phone number" );
+  equal( is.string.isPhone( pl2, 'pl' ), true, "'0048533628000' is a PL phone number" );
+
+
 });
 
 QUnit.test("string.isZip", function( assert ) {
@@ -281,7 +288,7 @@ QUnit.test("string.minLen and string.maxLen", function( assert ) {
 	equal( is.string.minLen(str1, 4), true, "4-character string is minLen of 4" );
 	equal( is.string.minLen(str2, 4, true), true, "trimmed 4-character string is minLen of 4" );
 	equal( is.string.minLen(str1, 5), false, "4-character string is not minLen of 5" );
-	
+
 	equal( is.string.maxLen(str1, 4), true, "4-character string is maxLen of 4" );
 	equal( is.string.maxLen(str2, 4, true), true, "trimmed 4-character string is maxLen of 4" );
 	equal( is.string.maxLen(str2, 3, true), false, "4-character string is not maxLen of 3" );

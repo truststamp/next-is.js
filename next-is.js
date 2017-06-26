@@ -1,4 +1,5 @@
-/* 
+/* eslint-disable */
+/*
 next-is.js 2.0 ~ Copyright (c) 2012-2016 Cedrik Boudreau, Cezary Daniel Nowak
 https://github.com/Cedriking/is.js
 is.js may be freely distributed under the MIT Licence.
@@ -41,6 +42,14 @@ is.js may be freely distributed under the MIT Licence.
     }
     return elements;
   };
+
+  function iOSversion() {
+    if (/iP(hone|od|ad)/.test(navigator.platform)) {
+      // supports iOS 2.0 and later: <http://bit.ly/TJjs1V>
+      var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
+      return [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+    }
+  }
 
   var is = {
     number: {
@@ -98,6 +107,30 @@ is.js may be freely distributed under the MIT Licence.
       },
       isValid: function(input) {
         return !is.isNaN(input.getTime());
+      },
+      isValidPattern: function(dateString) {
+        // Is pattern YYYY-MM-DD?
+        if (!/^\d{4}\-\d{1,2}\-\d{1,2}$/.test(dateString)) return false;
+
+        var parts = dateString.split('-');
+        var day = parseInt(parts[2], 10);
+        var month = parseInt(parts[1], 10);
+        var year = parseInt(parts[0], 10);
+
+        // Check the range of the month
+        if (month === 0 || month > 12) return false;
+
+        var monthLength = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+        // Is it the leap year?
+        if (year % 400 === 0 || (year % 100 !== 0 && year % 4 === 0)) monthLength[1] = 29;
+
+        // Check the range of the day
+        return day > 0 && day <= monthLength[month - 1];
+      },
+      isSameOrBefore: function(dateString, comparedDateString) {
+        if (!is.date.isValidPattern(dateString) || !is.date.isValidPattern(comparedDateString)) return false;
+        return new Date(dateString).getTime() <= new Date(comparedDateString).getTime();
       }
     },
     string: {
@@ -129,6 +162,14 @@ is.js may be freely distributed under the MIT Licence.
       isEmail: function(input) {
         return /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(input);
       },
+      isJSON: function(input) {
+        try {
+          JSON.parse(input);
+          return true;
+        } catch (e) {
+          return false;
+        }
+      },
       isLatLng: function(input) {
         return /-?\d{1,3}\.\d+/.test(input);
       },
@@ -137,8 +178,13 @@ is.js may be freely distributed under the MIT Licence.
       },
       isPhone: function(input, country) {
         var regex;
+        if (is.isArray(country)) {
+          return country.some(function(countryStr) {
+            return is.string.isPhone(input, countryStr);
+          });
+        }
         if (!country) {
-          country = 'us';
+          country = 'universal';
         }
         regex = (function() {
           switch (country) {
@@ -155,7 +201,11 @@ is.js may be freely distributed under the MIT Licence.
             case 'uk':
               return /^(?:\+|044)?(?:\s+)?\(?(\d{1,5}|\d{4}\s*\d{1,2})\)?\s+|-(\d{1,4}(\s+|-)?\d{1,4}|(\d{6}))\d{6}$/;
             case 'us':
-              return /^(1-?)?(\d{3})(:?[\s\-])*(\d{3})(:?[\s\-])*(\d{4})$/;
+              return /^(1-|\+1|1)?(\d{3})(:?[\s\-])*(\d{3})(:?[\s\-])*(\d{4})$/;
+            case 'pl':
+              return /^((0048|048|\+48|)\d{9})$/
+            case 'universal':
+              return /^[0-9\-\s]{5,30}$/
           }
         })();
         return regex.test(input);
@@ -221,6 +271,28 @@ is.js may be freely distributed under the MIT Licence.
           input = input.trim();
         }
         return input.length <= len;
+      },
+      /*
+       * Recognise if function is called as template tag instead of normal
+       * function call
+       *
+       *  function test() {
+       *    return is.string.isTemplateTagArgs(arguments);
+       *  }
+       *  test`bla bla bla` // true
+       *  test(['bla bla bla']) // false
+       */
+      isTemplateTagArgs: function(args) {
+        return args[0] instanceof Array && args[0].raw instanceof Array;
+      },
+      hasDigits: function(input) {
+        return /\d/.test(input);
+      },
+      hasLowerCaseLetter: function(input) {
+        return (!!input && /[a-z]/.test(input));
+      },
+      hasUpperCaseLetter: function(input) {
+        return /[A-Z]/.test(input);
       }
     },
     isNaN: function(input) {
@@ -253,7 +325,7 @@ is.js may be freely distributed under the MIT Licence.
       return isClass(input, type);
     },
     ie: function() {
-      return /msie/i.test(ua);
+      return /(msie|trident)/i.test(ua);
     },
     ie6: function() {
       return /msie 6/i.test(ua);
@@ -288,11 +360,17 @@ is.js may be freely distributed under the MIT Licence.
     chrome: function() {
       return /webkit\W.*(chrome|chromium)\W/i.test(ua);
     },
+    edge: function() {
+      return / Edge\//.test(ua);
+    },
     webkit: function() {
       return /webkit\W/i.test(ua);
     },
     mobile: function() {
       return /iphone|ipod|(android.*?mobile)|blackberry|nokia/i.test(ua);
+    },
+    android: function() {
+      return /(android)/i.test(ua);
     },
     tablet: function() {
       return /ipad|android(?!.*mobile)/i.test(ua);
@@ -323,6 +401,48 @@ is.js may be freely distributed under the MIT Licence.
     },
     linux: function() {
       return /linux/i.test(av);
+    },
+    iOS: function() {
+      return iOSversion() && !root.MSStream;
+    },
+    iOS9: function() {
+      return is.iOS() && iOSversion()[0] === 9;
+    },
+    iOS10: function() {
+      return is.iOS() && iOSversion()[0] === 10;
+    },
+    browser: function() {
+      return typeof window !== 'undefined' || typeof process === 'undefined';
+    },
+    localStorageSupported: function() {
+      // Safari, in Private Browsing Mode, looks like it supports localStorage
+      // but all calls to setItem throw QuotaExceededError.
+      // Thank you, Safari.
+      if (typeof localStorage === 'object') {
+        try {
+          localStorage.setItem('next-is-test__localStorage', 1);
+          localStorage.removeItem('next-is-test__localStorage');
+          return true;
+        } catch (e) {}
+      }
+
+      return false;
+    },
+    userMediaSupported: function() {
+      // check if native webcam is supported
+      var URL = root.URL || root.webkitURL || root.mozURL || root.msURL;
+      // Adapted from: https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
+      var mediaDevices = (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) ?
+        true : ((navigator.mozGetUserMedia || navigator.webkitGetUserMedia) ? true : false);
+
+      var userMedia = !!mediaDevices && !!URL;
+
+      // Older versions of firefox (< 21) apparently claim support but user media does not actually work
+      if (navigator.userAgent.match(/Firefox\D+(\d+)/)) {
+        if (parseInt(RegExp.$1, 10) < 21) userMedia = null;
+      }
+
+      return userMedia;
     }
   };
   each(['Object', 'Array', 'Boolean', 'Date', 'Function', 'Number', 'String', 'RegExp'], function(i, type) {
@@ -332,7 +452,7 @@ is.js may be freely distributed under the MIT Licence.
   });
 
   // shortcut: is.number()
-  var _obj = is.number
+  var _obj = is.number;
   is.number = is.isNumber;
   extend(is.number, _obj);
 
@@ -363,6 +483,17 @@ is.js may be freely distributed under the MIT Licence.
   };
 
   is.not = makeNot(is);
+
+  is.appendBrowsers = function() {
+    var className = 'edge chrome safari opera firefox ie11 ie10 ie9 ie8 ie7 ie6 iOS iOS9 iOS10'
+    .split(' ')
+    .reduce(function(cn, browser) {
+      return cn + (is[browser]() ? ' is-browser-' + browser : '');
+    }, '');
+    var html = document.querySelector('html');
+    var origClassName = html.getAttribute('class') || '';
+    html.setAttribute('class', (origClassName + ' ' + className).trim());
+  }
 
   if (typeof module === 'object' && module.exports) {
     module.exports = is;
