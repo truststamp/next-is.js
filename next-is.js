@@ -43,11 +43,12 @@ is.js may be freely distributed under the MIT Licence.
     return elements;
   };
 
-  function iOSversion() {
+  function iOSversion(returnNumber) {
     if (/iP(hone|od|ad)/.test(navigator.platform)) {
       // supports iOS 2.0 and later: <http://bit.ly/TJjs1V>
       var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
-      return [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+      var result = [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
+      return returnNumber ? parseFloat(result[0] + '.' + result[1]) : result;
     }
   }
 
@@ -215,6 +216,8 @@ is.js may be freely distributed under the MIT Licence.
               return /^((0048|048|\+48|)\d{9})$/
             case 'universal':
               return /^[0-9\-\s]{5,30}$/
+            default:
+              throw new Error('There is no contry "' + country + '" specified in next-is.js');
           }
         })();
         return regex.test(input);
@@ -411,14 +414,18 @@ is.js may be freely distributed under the MIT Licence.
     linux: function() {
       return /linux/i.test(av);
     },
-    iOS: function() {
-      return iOSversion() && !root.MSStream;
+    iOS: function(returnNumber) {
+      // returns version
+      return !root.MSStream && iOSversion(returnNumber);
     },
     iOS9: function() {
       return is.iOS() && iOSversion()[0] === 9;
     },
     iOS10: function() {
       return is.iOS() && iOSversion()[0] === 10;
+    },
+    iOS11: function() {
+      return is.iOS() && iOSversion()[0] === 11;
     },
     cordova: function() {
       return root && typeof root.cordova !== 'undefined';
@@ -497,7 +504,7 @@ is.js may be freely distributed under the MIT Licence.
   is.not = makeNot(is);
 
   is.appendBrowsers = function() {
-    var className = 'edge chrome safari opera firefox ie11 ie10 ie9 ie8 ie7 ie6 iOS iOS9 iOS10'
+    var className = 'desktop mobile edge chrome safari opera firefox ie11 ie10 ie9 ie8 ie7 ie6 iOS iOS9 iOS10 iOS11'
     .split(' ')
     .reduce(function(cn, browser) {
       return cn + (is[browser]() ? ' is-browser-' + browser : '');
