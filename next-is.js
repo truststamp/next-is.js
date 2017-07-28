@@ -504,7 +504,7 @@ is.js may be freely distributed under the MIT Licence.
   is.not = makeNot(is);
 
   is.appendBrowsers = function() {
-    var className = 'desktop mobile edge chrome safari opera firefox ie11 ie10 ie9 ie8 ie7 ie6 iOS iOS9 iOS10 iOS11'
+    var className = 'desktop mobile edge chrome cordova safari opera firefox ie11 ie10 ie9 ie8 ie7 ie6 iOS iOS9 iOS10 iOS11'
     .split(' ')
     .reduce(function(cn, browser) {
       return cn + (is[browser]() ? ' is-browser-' + browser : '');
