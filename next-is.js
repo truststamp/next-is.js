@@ -457,7 +457,7 @@ is.js may be freely distributed under the MIT Licence.
       var userMedia = !!mediaDevices && !!URL;
 
       // Older versions of firefox (< 21) apparently claim support but user media does not actually work
-      if (navigator.userAgent.match(/Firefox\D+(\d+)/)) {
+      if (navigator.userAgent && navigator.userAgent.match(/Firefox\D+(\d+)/)) {
         if (parseInt(RegExp.$1, 10) < 21) userMedia = null;
       }
 
