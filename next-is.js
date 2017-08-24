@@ -448,6 +448,8 @@ is.js may be freely distributed under the MIT Licence.
       return false;
     },
     userMediaSupported: function() {
+      if (!is.browser()) { return false; }
+
       // check if native webcam is supported
       var URL = root.URL || root.webkitURL || root.mozURL || root.msURL;
       // Adapted from: https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/getUserMedia
