@@ -437,13 +437,16 @@ is.js may be freely distributed under the MIT Licence.
       // Safari, in Private Browsing Mode, looks like it supports localStorage
       // but all calls to setItem throw QuotaExceededError.
       // Thank you, Safari.
-      if (typeof localStorage === 'object') {
-        try {
+      // Another one - in Safari Paranoia Mode (cookies turned off)
+      // merely looking at the localStorage prop throws a DOM exception.
+      // Thanks, Apple.
+      try {
+        if (typeof localStorage === 'object') {
           localStorage.setItem('next-is-test__localStorage', 1);
           localStorage.removeItem('next-is-test__localStorage');
           return true;
-        } catch (e) {}
-      }
+        }
+      } catch (e) {}
 
       return false;
     },
