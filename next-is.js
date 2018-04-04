@@ -370,7 +370,7 @@ is.js may be freely distributed under the MIT Licence.
       return /webkit\W(?!.*chrome).*safari\W/i.test(ua);
     },
     chrome: function() {
-      return /webkit\W.*(chrome|chromium)\W/i.test(ua);
+      return !is.edge() && /webkit\W.*(chrome|chromium)\W/i.test(ua);
     },
     edge: function() {
       return / Edge\//.test(ua);
