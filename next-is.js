@@ -46,7 +46,7 @@ is.js may be freely distributed under the MIT Licence.
   function iOSversion(returnNumber) {
     if (/iP(hone|od|ad)/.test(navigator.platform)) {
       // supports iOS 2.0 and later: <http://bit.ly/TJjs1V>
-      var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
+      var v = av.match(/OS (\d+)_(\d+)_?(\d+)?/);
       var result = [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
       return returnNumber ? parseFloat(result[0] + '.' + result[1]) : result;
     }
@@ -431,7 +431,8 @@ is.js may be freely distributed under the MIT Licence.
       return root && typeof root.cordova !== 'undefined';
     },
     browser: function() {
-      return typeof window !== 'undefined' || typeof process === 'undefined';
+      return typeof window !== 'undefined' && (!ua.includes("Node.js") && !ua.includes("jsdom")) ||
+        typeof process === 'undefined';
     },
     localStorageSupported: function() {
       // Safari, in Private Browsing Mode, looks like it supports localStorage
@@ -462,7 +463,7 @@ is.js may be freely distributed under the MIT Licence.
       var userMedia = !!mediaDevices && !!URL;
 
       // Older versions of firefox (< 21) apparently claim support but user media does not actually work
-      if (navigator.userAgent && navigator.userAgent.match(/Firefox\D+(\d+)/)) {
+      if (ua.match(/Firefox\D+(\d+)/)) {
         if (parseInt(RegExp.$1, 10) < 21) userMedia = null;
       }
 
