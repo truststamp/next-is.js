@@ -46,7 +46,7 @@ is.js may be freely distributed under the MIT Licence.
   function iOSversion(returnNumber) {
     if (/iP(hone|od|ad)/.test(navigator.platform)) {
       // supports iOS 2.0 and later: <http://bit.ly/TJjs1V>
-      var v = av.match(/OS (\d+)_(\d+)_?(\d+)?/);
+      var v = av.match(/OS (\d+)_(\d+)_?(\d+)?/) || [0, 0, 0];
       var result = [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
       return returnNumber ? parseFloat(result[0] + '.' + result[1]) : result;
     }
