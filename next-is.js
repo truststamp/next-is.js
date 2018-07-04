@@ -52,6 +52,19 @@ is.js may be freely distributed under the MIT Licence.
     }
   }
 
+  // source: https://github.com/atomantic/is-ua-webview @ 1.0.1
+  var inAppBrowserDetectionRules = '(' + [
+    // if it says it's a webview, let's go with that
+    'WebView',
+    // iOS webview will be the same as safari but missing "Safari"
+    '(iPhone|iPod|iPad)(?!.*Safari)',
+    // Android Lollipop and Above: webview will be the same as native but it will contain "wv"
+    // Android KitKat to lollipop webview will put {version}.0.0.0
+    'Android.*(wv|\.0\.0\.0)',
+    // old chrome android webview agent
+    'Linux; U; Android'
+  ].join('|') + ')';
+
   var is = {
     number: {
       isInteger: function(input) {
@@ -336,6 +349,9 @@ is.js may be freely distributed under the MIT Licence.
     isType: function(input, type) {
       return isClass(input, type);
     },
+    isPromise: function(item) {
+      return !!(item && typeof item.then === 'function' && typeof item.catch === 'function');
+    },
     ie: function() {
       return /(msie|trident)/i.test(ua);
     },
@@ -427,6 +443,9 @@ is.js may be freely distributed under the MIT Licence.
     iOS11: function() {
       return is.iOS() && iOSversion()[0] === 11;
     },
+    iOS12: function() {
+      return is.iOS() && iOSversion()[0] === 12;
+    },
     cordova: function() {
       return root && typeof root.cordova !== 'undefined';
     },
@@ -441,10 +460,15 @@ is.js may be freely distributed under the MIT Licence.
       // Another one - in Safari Paranoia Mode (cookies turned off)
       // merely looking at the localStorage prop throws a DOM exception.
       // Thanks, Apple.
+      var keyName = 'next-is-test__localStorage';
+      var value = '1';
       try {
         if (typeof localStorage === 'object') {
-          localStorage.setItem('next-is-test__localStorage', 1);
-          localStorage.removeItem('next-is-test__localStorage');
+          localStorage.setItem(keyName, value);
+          if (localStorage[keyName] !== value) {
+            return false;
+          }
+          localStorage.removeItem(keyName);
           return true;
         }
       } catch (e) {}
@@ -468,6 +492,24 @@ is.js may be freely distributed under the MIT Licence.
       }
 
       return userMedia;
+    },
+    inAppBrowser: function() {
+      // no browser, no in-app browser
+      if (!is.browser()) { return false; } 
+      
+      // I am not sure about this, but should be fine
+      if (is.userMediaSupported()) {
+        return false;
+      } else {
+        if (is.iOS() >= 11) {
+          // getUserMedia SHOULD be available in iOS over version 11,
+          // lack of support might mean in-app-browser
+          return true;
+        } else {
+          // UA detection is not accurate in Slack or FB, but it's worth to try.
+          return !!ua.match(new RegExp(inAppBrowserDetectionRules , 'ig'));
+        }
+      }
     }
   };
   each(['Object', 'Array', 'Boolean', 'Date', 'Function', 'Number', 'String', 'RegExp'], function(i, type) {
@@ -510,7 +552,7 @@ is.js may be freely distributed under the MIT Licence.
   is.not = makeNot(is);
 
   is.appendBrowsers = function() {
-    var className = 'desktop mobile edge chrome cordova safari opera firefox ie11 ie10 ie9 ie8 ie7 ie6 iOS iOS9 iOS10 iOS11'
+    var className = 'desktop mobile edge chrome cordova safari opera firefox ie11 ie10 ie9 ie8 ie7 ie6 iOS iOS9 iOS10 iOS11 iOS12'
     .split(' ')
     .reduce(function(cn, browser) {
       return cn + (is[browser]() ? ' is-browser-' + browser : '');
