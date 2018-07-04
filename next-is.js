@@ -501,7 +501,7 @@ is.js may be freely distributed under the MIT Licence.
       if (is.userMediaSupported()) {
         return false;
       } else {
-        if (is.iOS() >= 11) {
+        if (is.iOS() && iOSversion() >= 11) {
           // getUserMedia SHOULD be available in iOS over version 11,
           // lack of support might mean in-app-browser
           return true;
