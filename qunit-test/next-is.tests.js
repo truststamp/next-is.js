@@ -176,6 +176,18 @@ QUnit.test("isType", function( assert ) {
 	equal( is.isType( obj, "String" ), false, "Object is not type String" );
 });
 
+QUnit.test("isPromise", function( assert ) {
+	equal( is.isPromise( new Promise(function(resolve) { resolve() }) ), true, "Promise is a Promise" );
+	equal( is.isPromise( null ), false, "null is not a Promise" );
+	equal( is.isPromise( str ), false, "String is not a Promise" );
+	equal( is.isPromise( arr ), false, "Array is not a Promise" );
+	equal( is.isPromise( reg ), false, "Regexp is not a Promise" );
+	equal( is.isPromise( d ), false, "Date is not a Promise" );
+	equal( is.isPromise( bool ), false, "Boolean is not a Promise" );
+	equal( is.isPromise( integer ), false, "Number is not a Promise" );
+	equal( is.isPromise( obj ), false, "Object is not a Promise" );
+});
+
 
 /*** String Functions ***/
 QUnit.test("string.isBlank", function( assert ) {
@@ -361,4 +373,11 @@ QUnit.test("OS Check", function( assert ) {
 	ok( is.mac(), "I am using MAC" );
 	ok( is.unix(), "I am using UNIX" );
 	ok( is.linux(), "I am using LINUX" );
+});
+
+QUnit.test("browser features", function( assert ) {
+	ok( is.browser(), "I am using browser (not a NodeJS)" );
+	ok( is.localStorageSupported(), "My browser supports localStorage" );
+	ok( is.userMediaSupported(), "My browser supports getUserMedia" );
+	ok( is.inAppBrowser(), "I am using in-app-browser" );
 });
