@@ -107,6 +107,12 @@ var strEmpty = '',
 			navigator: iOSPlatform,
 			expected: ['gecko', 'mobile', 'thirdPartyIOSBrowser', 'webkit'],
 		},
+		dolphinBrowserOnIOS11: {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) AlohaBrowser/2.4.3b1 Mobile/15F79',
+			av: iOSAppVersion,
+			navigator: iOSPlatform,
+			expected: ['gecko', 'mobile', 'thirdPartyIOSBrowser', 'webkit'],
+		},
 	};
 
 /*** Object Functions ***/
@@ -493,7 +499,7 @@ QUnit.test("browser detection", function( assert ) {
 		var userAgent = userAgents[browserName];
 		is._mock('ua', userAgent.ua);
 		is._mock('av', userAgent.av);
-		is._mock('navigator', userAgent.navigator, true);
+		is._mock('navigator', userAgent.navigator);
 
 		deepEqual(getDetectedBrowsers(), userAgent.expected.sort(), browserName + ' detection should return ' + JSON.stringify(userAgent.expected));
 

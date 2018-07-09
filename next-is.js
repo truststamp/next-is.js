@@ -65,7 +65,7 @@ is.js may be freely distributed under the MIT Licence.
     'Linux; U; Android'
   ].join('|') + ')';
 
-  var _mockTemp = {
+  var _defaultMocks = {
     navigator: navigator,
     ua: ua,
     av: av
@@ -73,19 +73,15 @@ is.js may be freely distributed under the MIT Licence.
 
   var is = {
     _mockReset: function() {
-      navigator = _mockTemp.navigator;
-      ua = _mockTemp.ua;
-      av = _mockTemp.av;
+      navigator = _defaultMocks.navigator;
+      ua = _defaultMocks.ua;
+      av = _defaultMocks.av;
     },
-    _mock: function(varName, varValue, extend) {
+    _mock: function(varName, varValue) {
       // mock variable for testing purposes
       switch(varName) {
         case 'navigator':
-          if (extend) {
-            navigator = Object.assign({}, navigator, varValue)
-          } else {
-            navigator = varValue;
-          }
+          navigator = Object.assign({}, navigator, varValue)
           break
         case 'av':
           av = varValue;
@@ -411,13 +407,16 @@ is.js may be freely distributed under the MIT Licence.
       return /webkit\W(?!.*chrome).*safari\W/i.test(ua) && !is.thirdPartyIOSBrowser();
     },
     thirdPartyIOSBrowser() {
-      return is.iOS() && /(iOS|!Version|GSA|Puffin|AlohaBrowser)\//i.test(ua);
+      return is.iOS() &&
+        (/(iOS|!Version|GSA|Puffin|AlohaBrowser)\//i.test(ua) ||
+         / AppleWebKit\/(\d+)\.(\d+)\.(\d+)\.(\d+)\.(\d+) /i.test(ua) // dolphin browser
+        );
     },
     chrome: function() {
       return !is.edge() && /webkit\W.*(chrome|chromium|CriOS)\W/i.test(ua) && !/Puffin\//i.test(ua);
     },
     brave: function() {
-      return is.iOS() && is.thirdPartyIOSBrowser() && is.firefox() && / _id\//i.test(ua)
+      return is.iOS() && is.firefox() && / _id\//i.test(ua)
     },
     edge: function() {
       return / Edge\//.test(ua);
