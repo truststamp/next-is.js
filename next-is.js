@@ -65,7 +65,38 @@ is.js may be freely distributed under the MIT Licence.
     'Linux; U; Android'
   ].join('|') + ')';
 
+  var _mockTemp = {
+    navigator: navigator,
+    ua: ua,
+    av: av
+  };
+
   var is = {
+    _mockReset: function() {
+      navigator = _mockTemp.navigator;
+      ua = _mockTemp.ua;
+      av = _mockTemp.av;
+    },
+    _mock: function(varName, varValue, extend) {
+      // mock variable for testing purposes
+      switch(varName) {
+        case 'navigator':
+          if (extend) {
+            navigator = Object.assign({}, navigator, varValue)
+          } else {
+            navigator = varValue;
+          }
+          break
+        case 'av':
+          av = varValue;
+          break
+        case 'ua':
+          ua = varValue;
+          break
+        default:
+          throw new Error(varName + ' is not defined in _mock function');
+      }
+    },
     number: {
       isInteger: function(input) {
         return input % 1 === 0;
@@ -243,35 +274,29 @@ is.js may be freely distributed under the MIT Licence.
         regex = (function() {
           switch (country) {
             case 'ar':
-              return /^\d{4}$/;
             case 'au':
-              return /^\d{4}$/;
             case 'at':
-              return /^\d{4}$/;
             case 'be':
+            case 'hu':
+            case 'nl':
               return /^\d{4}$/;
+            case 'it':
+            case 'de':
+              return /^\d{5}$/;
             case 'br':
               return /^\d{5}[\-]?\d{3}$/;
             case 'ca':
               return /^[A-Za-z]\d[A-Za-z] \d[A-Za-z]\d$/;
             case 'dk':
               return /^\d{3,4}$/;
-            case 'de':
-              return /^\d{5}$/;
             case 'es':
               return /^((0[1-9]|5[0-2])|[1-4]\d)\d{3}$/;
             case 'gb':
               return /^[A-Za-z]{1,2}[0-9Rr][0-9A-Za-z]? \d[ABD-HJLNP-UW-Zabd-hjlnp-uw-z]{2}$/;
-            case 'hu':
-              return /^\d{4}$/;
             case 'is':
               return /^\d{3}$/;
-            case 'it':
-              return /^\d{5}$/;
             case 'jp':
               return /^\d{3}-\d{4}$/;
-            case 'nl':
-              return /^\d{4}$/;
             case 'pl':
               return /^\d{2}\-\d{3}$/;
             case 'se':
@@ -374,7 +399,7 @@ is.js may be freely distributed under the MIT Licence.
       return /Trident.*rv[ :]*11\./.test(ua);
     },
     firefox: function() {
-      return /firefox/i.test(ua);
+      return /firefox|FxiOS/i.test(ua);
     },
     gecko: function() {
       return /gecko/i.test(ua);
@@ -383,10 +408,16 @@ is.js may be freely distributed under the MIT Licence.
       return /opera/i.test(ua);
     },
     safari: function() {
-      return /webkit\W(?!.*chrome).*safari\W/i.test(ua);
+      return /webkit\W(?!.*chrome).*safari\W/i.test(ua) && !is.thirdPartyIOSBrowser();
+    },
+    thirdPartyIOSBrowser() {
+      return is.iOS() && /(iOS|!Version|GSA|Puffin|AlohaBrowser)\//i.test(ua);
     },
     chrome: function() {
-      return !is.edge() && /webkit\W.*(chrome|chromium)\W/i.test(ua);
+      return !is.edge() && /webkit\W.*(chrome|chromium|CriOS)\W/i.test(ua) && !/Puffin\//i.test(ua);
+    },
+    brave: function() {
+      return is.iOS() && is.thirdPartyIOSBrowser() && is.firefox() && / _id\//i.test(ua)
     },
     edge: function() {
       return / Edge\//.test(ua);
@@ -501,7 +532,7 @@ is.js may be freely distributed under the MIT Licence.
       if (is.userMediaSupported()) {
         return false;
       } else {
-        if (is.iOS() && iOSversion()[0] >= 11) {
+        if (is.iOS() && iOSversion()[0] >= 11 && is.safari()) {
           // getUserMedia SHOULD be available in iOS over version 11,
           // lack of support might mean in-app-browser
           return true;
