@@ -7,8 +7,113 @@ var strEmpty = '',
 	bool = true,
 	fl = 22.5,
 	integer = 23,
-	reg = /abc/;
-
+	reg = /abc/,
+	iOSAppVersion = '5.0 (iPhone; CPU iPhone OS 11_0_2 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A421 Safari/604.1',
+	androidAppVersion = '8.0',
+	iOSPlatform = { platform: 'iPhone' },
+	androidPlatform = { platform: 'Android' },
+	allBrowserTests = [
+		'ie', 'ie6', 'ie7', 'ie8', 'ie9', 'ie10', 'ie11', 'firefox', 'gecko', 'opera', 'safari',
+		'thirdPartyIOSBrowser', 'chrome', 'edge', 'webkit', 'mobile', 'brave'
+	].sort(),
+	userAgents = {
+		edgeOnIOS11: {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_2 like Mac OS X) AppleWebKit/603.2.4 (KHTML, like Gecko) Mobile/14F89 Safari/603.2.4 EdgiOS/41.1.35.1',
+			av: iOSAppVersion,
+			navigator: iOSPlatform,
+			expected: ['gecko', 'mobile', 'thirdPartyIOSBrowser', 'webkit'],
+		},
+		edgeOnAndroid8: {
+			ua: 'Mozilla/5.0 (Linux; Android 8.0; Pixel XL Build/OPP3.170518.006) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.0 Mobile Safari/537.36 EdgA/41.1.35.1',
+			av: androidAppVersion,
+			navigator: androidPlatform,
+			expected: ['chrome', 'gecko', 'mobile', 'webkit'],
+		},
+		safariOnIOS10: {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_2 like Mac OS X) AppleWebKit/602.3.3 (KHTML, like Gecko) Version/10.0 Mobile/14C5062e Safari/602.1',
+			av: iOSAppVersion,
+			navigator: iOSPlatform,
+			expected: ['safari', 'gecko', 'webkit', 'mobile'],
+		},
+		safariOnIOS11: {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0 Mobile/15A356 Safari/604.1',
+			av: iOSAppVersion,
+			navigator: iOSPlatform,
+			expected: ['safari', 'gecko', 'webkit', 'mobile'],
+		},
+		safariOnIOS12: {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0 Mobile/15E148 Safari/604.1',
+			av: iOSAppVersion,
+			navigator: iOSPlatform,
+			expected: ['safari', 'gecko', 'webkit', 'mobile'],
+		},
+		chromeOnIOS10: {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) CriOS/56.0.2924.75 Mobile/14E5239e Safari/602.1',
+			av: iOSAppVersion,
+			navigator: iOSPlatform,
+			expected: ['chrome', 'gecko', 'mobile', 'thirdPartyIOSBrowser', 'webkit'],
+		},
+		chromeOnIOS11: {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_4 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) CriOS/67.0.3396.59 Mobile/15F79 Safari/604.1',
+			av: iOSAppVersion,
+			navigator: iOSPlatform,
+			expected: ['chrome', 'gecko', 'mobile', 'thirdPartyIOSBrowser', 'webkit'],
+		},
+		firefoxOnIOS10: {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_3_2 like Mac OS X) AppleWebKit/603.2.4 (KHTML, like Gecko) FxiOS/7.5b3349 Mobile/14F89 Safari/603.2.4',
+			av: iOSAppVersion,
+			navigator: iOSPlatform,
+			expected: ['firefox', 'gecko', 'mobile', 'thirdPartyIOSBrowser', 'webkit'],
+		},
+		firefoxOnIOS11: {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_2_6 like Mac OS X) AppleWebKit/604.5.6 (KHTML, like Gecko) FxiOS/10.6b8836 Mobile/15D100 Safari/604.5.6',
+			av: iOSAppVersion,
+			navigator: iOSPlatform,
+			expected: ['firefox', 'gecko', 'mobile', 'thirdPartyIOSBrowser', 'webkit'],
+		},
+		googleSearchOnIOS10: {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 10_1_1 like Mac OS X) AppleWebKit/600.1.4 (KHTML, like Gecko) GSA/20.3.136880903 Mobile/14B100 Safari/600.1.4',
+			av: iOSAppVersion,
+			navigator: iOSPlatform,
+			expected: ['gecko', 'mobile', 'thirdPartyIOSBrowser', 'webkit'],
+		},
+		googleSearchOnIOS11: {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_1_2 like Mac OS X) AppleWebKit/604.1.34 (KHTML, like Gecko) GSA/40.1.177082287 Mobile/15B202 Safari/604.1',
+			av: iOSAppVersion,
+			navigator: iOSPlatform,
+			expected: ['gecko', 'mobile', 'thirdPartyIOSBrowser', 'webkit'],
+		},
+		puffinOnIOS11: {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0_2 like Mac OS X; en-GB) AppleWebKit/537.36 (KHTML, like Gecko) Version/11.0.2 Mobile/15A421 Safari/537.36 Puffin/5.2.2IP Chrome/63.0.1234.56',
+			av: iOSAppVersion,
+			navigator: iOSPlatform,
+			expected: ['gecko', 'mobile', 'thirdPartyIOSBrowser', 'webkit'],
+		},
+		operaMiniOnIOS11: {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0_2 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) OPiOS/16.0.10.121137 Mobile/15A421 Safari/9537.53',
+			av: iOSAppVersion,
+			navigator: iOSPlatform,
+			expected: ['gecko', 'mobile', 'thirdPartyIOSBrowser', 'webkit'],
+		},
+		braveOnIOS11: {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_0_2 like Mac OS X) AppleWebKit/604.1.38 (KHTML, like Gecko) FxiOS/1.6.2b18.05.29.10 Mobile/15A421 Safari/604.1.38 _id/000001',
+			av: iOSAppVersion,
+			navigator: iOSPlatform,
+			expected: ['brave', 'firefox', 'gecko', 'mobile', 'thirdPartyIOSBrowser', 'webkit'],
+		},
+		alohaBrowserOnIOS11: {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) AlohaBrowser/2.4.3b1 Mobile/15F79',
+			av: iOSAppVersion,
+			navigator: iOSPlatform,
+			expected: ['gecko', 'mobile', 'thirdPartyIOSBrowser', 'webkit'],
+		},
+		dolphinBrowserOnIOS11: {
+			ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 11_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) AlohaBrowser/2.4.3b1 Mobile/15F79',
+			av: iOSAppVersion,
+			navigator: iOSPlatform,
+			expected: ['gecko', 'mobile', 'thirdPartyIOSBrowser', 'webkit'],
+		},
+	};
 
 /*** Object Functions ***/
 QUnit.test("isArray", function( assert ) {
@@ -380,4 +485,24 @@ QUnit.test("browser features", function( assert ) {
 	ok( is.localStorageSupported(), "My browser supports localStorage" );
 	ok( is.userMediaSupported(), "My browser supports getUserMedia" );
 	ok( is.inAppBrowser(), "I am using in-app-browser" );
+});
+
+const getDetectedBrowsers = () => allBrowserTests.reduce(function(result, browser) {
+	if (is[browser]()) {
+		result.push(browser);
+	}
+	return result;
+}, []);
+
+QUnit.test("browser detection", function( assert ) {
+	Object.keys(userAgents).forEach((browserName) => {
+		var userAgent = userAgents[browserName];
+		is._mock('ua', userAgent.ua);
+		is._mock('av', userAgent.av);
+		is._mock('navigator', userAgent.navigator);
+
+		deepEqual(getDetectedBrowsers(), userAgent.expected.sort(), browserName + ' detection should return ' + JSON.stringify(userAgent.expected));
+
+		is._mockReset();
+	});
 });
