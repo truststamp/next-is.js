@@ -24,24 +24,6 @@ is.js may be freely distributed under the MIT Licence.
       return target;
     });
   };
-  var each = function(elements, callback) {
-    var element, key, i, len;
-    if (typeof elements === 'array') {
-      for (i = 0, len = elements.length; i < len; i++) {
-        element = elements[i];
-        if (!callback.call(element, i, element)) {
-          return elements;
-        }
-      }
-    } else {
-      for (key in elements) {
-        if (!callback.call(elements[key], key, elements[key])) {
-          return elements;
-        }
-      }
-    }
-    return elements;
-  };
 
   function iOSversion(returnNumber) {
     if (/iP(hone|od|ad)/.test(navigator.platform)) {
@@ -81,14 +63,14 @@ is.js may be freely distributed under the MIT Licence.
       // mock variable for testing purposes
       switch(varName) {
         case 'navigator':
-          navigator = Object.assign({}, navigator, varValue)
-          break
+          navigator = Object.assign({}, navigator, varValue);
+          break;
         case 'av':
           av = varValue;
-          break
+          break;
         case 'ua':
           ua = varValue;
-          break
+          break;
         default:
           throw new Error(varName + ' is not defined in _mock function');
       }
@@ -406,7 +388,7 @@ is.js may be freely distributed under the MIT Licence.
     safari: function() {
       return /webkit\W(?!.*chrome).*safari\W/i.test(ua) && !is.thirdPartyIOSBrowser();
     },
-    thirdPartyIOSBrowser() {
+    thirdPartyIOSBrowser: function() {
       return is.iOS() &&
         (/(iOS|!Version|GSA|Puffin|AlohaBrowser)\//i.test(ua) ||
          / AppleWebKit\/(\d+)\.(\d+)\.(\d+)\.(\d+)\.(\d+) /i.test(ua) // dolphin browser
@@ -542,8 +524,8 @@ is.js may be freely distributed under the MIT Licence.
       }
     }
   };
-  each(['Object', 'Array', 'Boolean', 'Date', 'Function', 'Number', 'String', 'RegExp'], function(i, type) {
-    return is["is" + type] = function(input) {
+  ['Object', 'Array', 'Boolean', 'Date', 'Function', 'Number', 'String', 'RegExp'].forEach(function(type) {
+    is["is" + type] = function(input) {
       return isClass(input, type);
     };
   });
@@ -590,7 +572,7 @@ is.js may be freely distributed under the MIT Licence.
     var html = document.querySelector('html');
     var origClassName = html.getAttribute('class') || '';
     html.setAttribute('class', (origClassName + ' ' + className).trim());
-  }
+  };
 
   if (typeof module === 'object' && module.exports) {
     module.exports = is;
