@@ -235,9 +235,9 @@ is.js may be freely distributed under the MIT Licence.
             case 'us':
               return /^(1-|\+1|1)?(\d{3})(:?[\s\-])*(\d{3})(:?[\s\-])*(\d{4})$/;
             case 'pl':
-              return /^((0048|048|\+48|)\d{9})$/
+              return /^((0048|048|\+48|)\d{9})$/;
             case 'universal':
-              return /^[0-9\-\s]{5,30}$/
+              return /^[0-9\-\s]{5,30}$/;
             default:
               throw new Error('There is no contry "' + country + '" specified in next-is.js');
           }
@@ -398,7 +398,7 @@ is.js may be freely distributed under the MIT Licence.
       return !is.edge() && /webkit\W.*(chrome|chromium|CriOS)\W/i.test(ua) && !/Puffin\//i.test(ua);
     },
     brave: function() {
-      return is.iOS() && is.firefox() && / _id\//i.test(ua)
+      return is.iOS() && is.firefox() && / _id\//i.test(ua);
     },
     edge: function() {
       return / Edge\//.test(ua);
@@ -522,6 +522,84 @@ is.js may be freely distributed under the MIT Licence.
           return !!ua.match(new RegExp(inAppBrowserDetectionRules , 'ig'));
         }
       }
+    },
+    isWindowsTabletAsync: function() {
+      // windows tablets are: Surface Pro, Lenovo Miix, HP Envy x2 etc
+      // we detect it based on:
+      // - has high pixel density
+      // - has front and back cameras
+      // - has touch
+      return new Promise(function(resolve, reject) {
+        if (
+          !is.windows()
+          || !is.userMediaSupported()
+          || navigator.maxTouchPoints < 3 // less than 3 touch points - potato
+          || root.devicePixelRatio < 1.5
+        ) return reject(); 
+
+        navigator
+          .mediaDevices
+          .enumerateDevices()
+          .then(function(mediaDevices) {
+            var filter = function(mediaDevice) { return mediaDevice.kind === 'videoinput'; };
+            var videoInputs = mediaDevices.filter(filter);
+            if (videoInputs.length >= 2) return resolve();
+            reject();
+          }, reject);
+      });
+    },
+    microBenchmarkScoreAsync: function(passes) {
+      passes || (passes = 100);
+      return new Promise(function(resolve) {
+        var timeStart = Date.now();
+        var results = [];
+        var promises = [];
+        for (var i = passes; i > 0; i--) {
+          // regexp
+          results.push(Math.random().toString(36).match(new RegExp(inAppBrowserDetectionRules , 'ig')));
+
+          // canvas
+          promises.push(testCanvas());
+
+          // Array
+          results.sort(function() { return Math.random() < 0.5 ? 1 : -1; });
+        }
+        var timeOverall = Date.now() - timeStart;
+
+        // Why this ternary operator is required?
+        // its important to store values of benchmarks, to prevent
+        // - uglifyjs
+        // - browser's micro-optimisations
+        // from omiting benchmark code
+        Promise.all(promises).then(function() {
+          resolve(timeOverall ? timeOverall : results);
+        });
+      });
+
+      function testCanvas() {
+        return new Promise(function(resolve) {
+          var canvas = document.createElement('canvas');
+          canvas.width = canvas.height = 99;
+          var ctx = canvas.getContext('2d');
+          var imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+          function randomInt(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+          }
+
+          for (var i = 0; i < imgData.data.length; i++) {
+            imgData.data[i] = randomInt(0, 255); // red
+          }
+
+          ctx.putImageData(imgData, 0, 0);
+          canvas.style.position = 'absolute';
+          canvas.style.bottom = 0;
+          canvas.style.opacity = 0.01;
+          document.body.appendChild(canvas);
+
+          setTimeout(function() { canvas.parentNode.removeChild(canvas); resolve(); });
+        });
+      }
     }
   };
   ['Object', 'Array', 'Boolean', 'Date', 'Function', 'Number', 'String', 'RegExp'].forEach(function(type) {
@@ -551,7 +629,7 @@ is.js may be freely distributed under the MIT Licence.
       if (inputObj[key] instanceof Function) {
         result[key] = function() {
           return !inputObj[key].apply(null, arguments);
-        }
+        };
       }
       if (!is.isEmpty(inputObj[key])) {
         // is.not.string.isCC
