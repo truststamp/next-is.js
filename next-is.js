@@ -529,23 +529,23 @@ is.js may be freely distributed under the MIT Licence.
       // - has high pixel density
       // - has front and back cameras
       // - has touch
-      return new Promise(function(resolve, reject) {
+      return new Promise(function(resolve) {
         if (
           !is.windows()
           || !is.userMediaSupported()
           || navigator.maxTouchPoints < 3 // less than 3 touch points - potato
           || root.devicePixelRatio < 1.5
-        ) return reject(); 
+        ) return resolve(false); 
 
         navigator
           .mediaDevices
           .enumerateDevices()
           .then(function(mediaDevices) {
-            var filter = function(mediaDevice) { return mediaDevice.kind === 'videoinput'; };
-            var videoInputs = mediaDevices.filter(filter);
-            if (videoInputs.length >= 2) return resolve();
-            reject();
-          }, reject);
+            var filterVideoInputs = function(mediaDevice) { return mediaDevice.kind === 'videoinput'; };
+            var videoInputs = mediaDevices.filter(filterVideoInputs);
+
+            resolve(videoInputs.length >= 2);
+          }).catch(() => resolve(false));
       });
     },
     microBenchmarkScoreAsync: function(passes) {
@@ -564,7 +564,6 @@ is.js may be freely distributed under the MIT Licence.
           // Array
           results.sort(function() { return Math.random() < 0.5 ? 1 : -1; });
         }
-        var timeOverall = Date.now() - timeStart;
 
         // Why this ternary operator is required?
         // its important to store values of benchmarks, to prevent
@@ -572,6 +571,7 @@ is.js may be freely distributed under the MIT Licence.
         // - browser's micro-optimisations
         // from omiting benchmark code
         Promise.all(promises).then(function() {
+          var timeOverall = Date.now() - timeStart;
           resolve(timeOverall ? timeOverall : results);
         });
       });
