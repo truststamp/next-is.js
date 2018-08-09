@@ -545,7 +545,7 @@ is.js may be freely distributed under the MIT Licence.
             var videoInputs = mediaDevices.filter(filterVideoInputs);
 
             resolve(videoInputs.length >= 2);
-          }).catch(() => resolve(false));
+          }).catch(function() { resolve(false); });
       });
     },
     microBenchmarkScoreAsync: function(passes) {
