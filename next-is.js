@@ -12,6 +12,8 @@ is.js may be freely distributed under the MIT Licence.
   var proto = object.prototype;
   var ua = navigator.userAgent || "";
   var av = navigator.appVersion || "";
+  var BARCODE_IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEwAAAAeAQMAAAC8H2qUAAAABlBMVEX///8AAABVwtN+AAAAGElEQVQY02NgoBxckpmtEttT2jC0mZQCACJsP8eZ9raiAAAAAElFTkSuQmCC';
+  var BARCODE_IMAGE_CONTENT = ':)';
   var isClass = function(obj, klass) {
     return proto.toString.call(obj) === ("[object " + klass + "]");
   };
@@ -522,6 +524,27 @@ is.js may be freely distributed under the MIT Licence.
           return !!ua.match(new RegExp(inAppBrowserDetectionRules , 'ig'));
         }
       }
+    },
+    barcodeDetectorSupportedAsync: function() {
+      return new Promise(function(resolve, reject) {
+        if (!is.isFunction(window.BarcodeDetector)) return reject('NOT_SUPPORTED');
+
+        var img = new Image();
+        img.src = BARCODE_IMAGE;
+        img.onload = function() {
+          var barcodeDetector = new BarcodeDetector();
+          barcodeDetector.detect(img)
+            .then(function(barcodes) {
+              if (barcodes && barcodes[0] && barcodes[0].rawValue === BARCODE_IMAGE_CONTENT) {
+                resolve();
+              } else {
+                reject('INVALID_RESULT');
+              }
+            })
+            .catch(reject);
+        };
+        img.onerror = function() { reject('UNKNOWN_ERROR'); }
+      });
     },
     isWindowsTabletAsync: function() {
       // windows tablets are: Surface Pro, Lenovo Miix, HP Envy x2 etc
